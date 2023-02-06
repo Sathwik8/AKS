@@ -1,0 +1,184 @@
+Installing Docker
+
+Right click and select open in terminal
+
+Changiung the hostname
+
+$ sudo hostnamectl set-hostname dockerhost
+
+Refresh the software repositories
+
+$ sudo apt-get update
+
+Installing docker
+
+$ sudo apt-get install docker.io -y
+
+Add the rps user to the docker grup
+
+$ sudo usermod -aG docker rps
+
+close the terminal
+
+Reopn the terminal
+
+$ docker version
+
+Docler Lab 1
+
+Docker Lab 1
+Docker Labs
+
+Run our first container 
+
+$docker container run hello-world
+Image Naming convention of DockerHUB
+reponame:tag
+eg hello:world
+hello-world is the name of repo
+and there is no tag specified if no tag specified then the tag is latest
+
+docker first check the image locally if present run the container if not present then it will check docker hub and find hello-world public repo and download the image with latest tag locally and then run the container
+Every docker image contains a default command that will be executed when you run the container using the image. if the command is  along running process then your container wll be in running state . if the command is a short running process it will start do its job and the process terminates and hence the container also exits
+
+to list all running container
+$ docker container ls 
+
+To list all containers
+
+$ docker container ls -a
+
+Running containers with a different command
+
+$ docker container run docker.io/library/ubuntu:18.04
+
+the default command for the ubuntu image is /bin/bash and you will notice that the ccontainer run and terminates 
+
+$ docker container run docker.io/library/ubuntu:18.04 ps -aux
+
+$ docker container run docker.io/library/ubuntu:18.04 ls -l
+
+$ docker container run docker.io/library/ubuntu:18.04 sleep 20
+
+you will notice that the container is runnin for 20 secs
+
+the container will run in foreground mode and you will not get the command prompt till teh command completed to address this we need to run the container in backgrund mode or detach mode
+
+
+
+
+
+
+
+
+
+
+Running the container in detached mode
+
+$ docker container run --name webserver tomee:latest
+
+the container will start in foreground mode that means the terminal will be used as the output device of the container. Try to press ctrl+c
+and you will see the container gets exited
+
+$ docker container ls -a
+
+To start the container in detach mode(recommended for all containers)
+
+$ docker container run --name webserver1 -d tomcat:latest
+
+to login to the running containers
+docker container exec -it container_id bash or sh
+
+Login to the existing running containers
+
+$docker container run -d centos sleep 600
+
+check the container status
+$docker container ls
+
+check the id and use the following command
+$docker container exec -it container_id bash
+
+you will be inside the container . execute the command
+ps -ef
+
+you will see sleep 600 is the pid 1 process and bash is with different id
+
+exit from the container 
+
+exit 
+
+you will notice the container is not termincated because the PID1 process is not impacted
+
+
+Run container in interactive mode
+
+$docker container run --name test -it docker.io/library/centos
+
+you ar in container shell prompt
+
+execute 
+
+ps -ef
+
+and see /bin/bash is the parent process having pid 1. if the parent process gets stoppeed the container slao exits
+
+type exit
+
+$ docker container ls -a
+
+you will see the container exits
+
+
+
+
+
+$ docker container ls
+
+To check the logs
+
+$ docker container logs webserver1
+
+or
+
+$ docker container logs containerid
+
+to stop the container
+
+docker container stop containername/id
+
+$ docker container stop 54ce1
+
+to start the container
+
+docker container start containerid/name
+
+$ docker container start 54ce1
+
+to delete the container
+
+first stop the container and then delete it
+
+$  docker container stop web
+$ docker container rm web
+
+to check the container resource usage
+
+$ docker container stats
+
+To delete all the stopped container at one go
+
+$ docker container prune
+
+Docker directory where all information of containers are stored
+
+$ sudo ls -l /var/lib/docker
+
+exposing the application to outside world
+
+Delete all the containers
+
+docker container ls -aq|xargs docker container stop
+docker container ls -aq|xargs docker container rm
+
+
