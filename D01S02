@@ -55,6 +55,7 @@ to manually map the hostport
 
 $ docker container run --name httpserver -d -p 8088:80 httpd
 
+#if you change the guest port to any other port other than 80 then it should be adjusted inside the configuration file of the guest pod too.
 Check
 
 $ docker container ls
