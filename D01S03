@@ -1,0 +1,62 @@
+Docker volume lab
+Docker Volumes
+
+Docker volumes
+Create the container using volume
+
+delete all the container
+docker container ls -aq|xargs docker container stop
+docker container ls -aq|xargs docker container rm
+
+Create the container
+
+$ docker container run --name web -d -P -v datavolume1:/var/www/html-sample-app nginx
+
+Login to the container
+
+$ dock
+cd /var/www/html-sample-app
+touch a b c d e f g
+exit
+
+change it to root
+sudo su -
+ls -l /var/lib/docker/volumes/datavolume1/_data
+
+you will see all the files
+
+Check the volume mapping using the following command
+
+$ docker container inspect web |more
+see the mount section
+
+delete the container
+$ docker container stop web
+$ docker container rm web
+
+check the container is delete but not the volume
+$ docker container ls
+$ docker volume ls
+
+To map th exisiting created directory as docker volume
+sudo mkdir /web
+docker container run --name webserver1 -d -P -v /web:/var/log/nginx nginx
+login to the container
+$ docker container exec -it webserver1 bash
+cd /var/log/nginx
+touch file1 testfile
+exit
+ls -l /web
+you will see the files error.log file1 and testfile1
+
+check in this case we are mapping a existing created directory there is no volume created
+
+$ docker volume ls
+
+To delete the volum finally delete the container and delete the volume
+
+$ docker container stop webserver1
+$ docker container rm webserver1
+$docker volume rm volumename
+
+
