@@ -1,0 +1,62 @@
+Every docker host has the interface called docker0 created during installation. to check the docker0 interface execute the following command
+
+$ip a
+
+run a test container
+
+$docker container run --name web -d nginx
+
+check the container ip using
+
+$docker container inspect web
+
+every container gets a ip address and the container is using the bridge network. you can see the container ip and the network used by the docker container in the above command
+
+to see more information on docker network execute
+
+$docker network ls
+
+you can see that docker uses three network called bridge , host and none
+
+to see the details information on bridge network execute
+
+$docker network inspect bridge
+
+the above command will display the bridge network details and the contains using the bridge network.
+
+expose the container to outside world
+
+Run the container issuing port mapping
+
+$ docker container run --name nginx1 -d -P nginx
+
+To check the IP of the container
+
+$ docker container inspect nginx1
+
+To check the port mapping
+
+$ docker container ls 
+
+open web browser and use the public ip and the port starting from 49153
+
+you will able to see the application webpage
+
+Try to run another container
+
+$ docker container run --name webserver1 -d -P tomee
+
+ Check the port and access the web page using pubicip:portnumber
+
+Check the address translation rules using
+$ sudo iptables-save|grep -i 49153
+
+to manually map the hostport
+
+$ docker container run --name httpserver -d -p 8088:80 httpd
+
+Check
+
+$ docker container ls
+
+access the application using publicip:8088
