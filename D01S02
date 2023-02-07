@@ -1,3 +1,7 @@
+*****************************************************************
+https://www.mend.io/free-developer-tools/blog/docker-expose-port/
+*****************************************************************
+
 Every docker host has the interface called docker0 created during installation. to check the docker0 interface execute the following command
 
 $ip a
