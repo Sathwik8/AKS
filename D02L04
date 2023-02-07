@@ -1,0 +1,70 @@
+Lab
+----------------------------------------------
+
+Pod basic commands
+
+To list pod in default namespaces
+
+$ kubectl get pod
+
+To list the pod running in all namespaces
+
+$ kubectl get pod --all-namespaces
+
+to create the pod
+
+
+eg
+
+$ kubectl run testpod --image=nginx --port=80
+
+To check the pod status
+
+$ kubectl get pod
+
+To dispay detailed information about pod and events
+
+$ kubectl describe pod testpod
+
+To list the nodes where the pod is running and pod ip details
+
+$ kubectl get pod -o wide
+
+To login to the pod containers
+
+$ kubectl exec -it testpod sh
+
+to display the pod information in yaml or json format
+
+$ kubectl get pod testpod -o yaml
+
+$ kubectl get pod testpod -o json
+
+To delete the pod
+
+$ kubectl delete pod testpod 
+
+
+
+Create POD using Yaml file
+
+Generate the Yaml file using the kubectl command with dry-run option
+
+
+ kubectl run demopod --image=nginx --dry-run=client -o yaml
+
+save the output of the above command to a file
+
+kubectl run demopod --image=nginx --dry-run=client -o yaml > demopod.yaml
+
+Create the pod using yaml file
+
+$ kubectl apply -f demopod.yaml
+
+to list the pod 
+
+$ kubectl get pod
+
+to delete the pod 
+
+$ kubectl delete -f demopod.yaml
