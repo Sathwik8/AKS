@@ -1,0 +1,69 @@
+Dockefile
+
+Create the docker image using dockerfile
+
+mkdir webapp
+cd webapp
+echo "Welcome to the world of Containers" >index.html
+cat > Dockerfile
+FROM ubuntu:16.04
+RUN apt-get update
+RUN apt-get install curl git apache2 -y
+WORKDIR /var/www/html
+COPY index.html . 
+CMD ["apachectl", "-DFOREGROUND"]
+EXPOSE 80
+
+
+save the file using ctrl-d
+
+please replace dockerid with your docker id
+
+
+$ docker image build -t dockerid/httpd:v1 .
+
+Run the container
+
+docker container run --name apache2 -d -P dockerid/httpd:v1
+
+browse the hostip:hostport
+
+check the hostport using the command
+
+$ docker container ls
+
+Store the image to Dockerhub
+
+$ docker image push dockerid/httpd:v1
+
+check the image using 
+$ docker image ls
+
+
+Modify the index.html file 
+
+echo " Welcome to the world of Kubernetes and Orchestration" > index.html
+
+Rebuild the image
+
+docker image build -t dockerid/httpd:v2 .
+
+run the container
+
+$ docker container run --name apache2v2 -d -P dockerid/httpd:v2
+
+check the container and the host port
+$ docker container ls
+
+push the image to the docker repo
+docker logindocker 
+provide your username and password 
+
+docker image push dockerid/httpd:v2
+
+docker image ls 
+
+go to dokerhub and click on repositrories select the repo httpd and select tag 
+
+you will find both the image
+===========================
