@@ -1,0 +1,40 @@
+Installing Single node Cluster
+
+Lab : Installing a single node cluster
+
+Installing Minukube 
+Download Minukube pre-reeqs 
+
+$ sudo apt install -y curl wget apt-transport-https
+
+Donwload minikube binary
+
+$ wget https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+Assign execute permission to minikube
+
+$ sudo cp minikube-linux-amd64 /usr/local/bin/minikube
+$ sudo chmod +x /usr/local/bin/minikube
+
+Installing kubectl
+curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+$ chmod +x kubectl
+$ sudo mv kubectl /usr/local/bin/
+
+
+Setup Minikube 
+
+$ minikube start 
+
+once the setup i somplete execute the command to check the node status
+
+$ kubectl get node
+
+
+To verify the control plane components
+
+$ kubectl get pod -n kube-system
+
+
+
