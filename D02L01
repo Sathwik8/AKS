@@ -1,0 +1,123 @@
+Docker image using interactive method
+Create the docker image using Intercative method 
+
+
+Creating the docker image using interactive method
+remove all the containers
+
+$ docker container ls -aq|xargs docker container rm -f
+
+$ docker container run --name test -it ubuntu:16.04
+
+apt-get update
+apt-get install curl git apache2 -y
+
+echo " Welcome to the world of Docker and Kubernetes" >/var/www/html/index.html
+cd /var/www/html
+apachectl -D foreground
+
+press ctrl+pq
+
+$ 	
+
+check the ip of the container
+
+to check the container ip
+
+docker container inspect test
+
+
+$ curl -v http://container_ip:80
+
+you will see the webpage
+
+Stop the container 
+
+$ docker container stop test
+
+Commit the container to docker image
+
+docker container commit test web:httpdv1
+
+list the new image using
+
+docker image ls
+
+run the new image 
+
+docker container run —name webserver1 -d -P web:httpdv1
+
+list the running container
+
+docker container ls
+
+you will see that no container is running state
+
+docker container ls -a
+
+you can see the container webserver1 is stopped. the container is stopped due to the wrong command. the command should be the command using which the application start(apachectl -D foreground) instead of /bin/bash
+
+the container will only run if the default command in the image is the coorect command using which the application starts
+
+recreate the docker image using the command. replace containerid with your containerid
+
+docker container commit --change='CMD ["apachectl", "-DFOREGROUND"]' -c "EXPOSE 80" test  web:httpdv2
+
+
+
+check the image using
+
+docker image ls 
+
+Run the container using the command
+
+docker container run --name webhttp -d -P web:httpdv2
+
+browse the web page using the publicip and port . check the host port using the command
+
+$ docker container ls
+
+==================================
+Pushing images to docker hub
+
+Storing Image in Docker Hub
+
+To list the image
+
+$ docker image ls
+
+you will have the image with name web:httpdv2 try to push the image using
+
+login to dockerhub first
+
+$ docker login docker.io
+
+provide you dockerid and password
+
+$ docker image push web:httpdv2
+
+you will get a permission denied meesage because you do not have access to the web repo. you can only push to the repo which belongs to your dockerid
+
+Create a new image name from the existing image using
+
+$ docker image tag web:httpdv2 docker.io/dockerid/web:httpdv2
+
+replace dockerid  with your dockerid
+
+$ docker image push docker.io/dockerid/web:httpdv2
+
+Login to dockerhub in your browser and check the new repo web is being crated and in tag tab you will find the image 
+
+Delete the existing image and container
+docker container ls -aq|xargs docker container rm -f 
+
+
+$ docker image rm web:httpdv1
+$ docker image rm web:httpdv2
+$ docker image rm dockerid/web:httpdv2
+
+Run the container with the newly pushed image
+
+$ docker container run --name webserver -d -P dockerid/web:httpdv2
+
+you will see docker will pull the image from dockerhub and run the container
