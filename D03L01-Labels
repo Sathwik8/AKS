@@ -1,0 +1,70 @@
+POD Labels Lab
+Pod labels
+
+Pod labels are key value pair that we assigned to pod and provide meningful information to pod . POD labels are mandatory and ned to assigned to pod by the user
+
+To cretae the pod with user defined label
+$ kubectl run newpod --image=nginx -l app=nginx
+
+to list the pod labels
+
+$ kubectl get pod --show-labels
+
+create the pod using yaml file with labels
+
+modify the demopod.yaml
+
+cat >demopod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: tomee
+    env: dev
+    version: v1
+  name: demopod
+spec:
+  containers:
+  - image: nginx
+    name: demopod
+press ctrl-d
+
+cat demopod.yaml
+
+$ kubectl apply -f demopod.yaml
+
+check the pod labels using the command
+$ kubectl get pod --show-labels
+
+create a new pod and defined the label in command line 
+
+kubectl run appserver --image=tomee -l app=tomee —port=8080
+
+to add more labels to pod using the command line
+
+kubectl label pod appserver env=dev version=1
+
+To list the pod matching specific labels
+
+$  kubectl get pod -l app=tomee
+
+to overwrite  existing pod label
+
+$ kubectl label pod appserver app=web --overwrite
+
+to add new pod label
+
+kubectl label pod demopod role=webserver
+
+to delete the pod label
+
+ kubectl label pod demopod role-
+
+to list all the pod labels
+
+$ kubectl get pod --show-labels
+
+to delete all the pods
+
+$ kubectl delete pod --all
+---------------------------------------
