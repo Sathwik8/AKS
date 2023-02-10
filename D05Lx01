@@ -1,0 +1,203 @@
+Taint and tolerations lab
+
+Taints is used when you want that scheduler will not able to schedule the pods on specific nodes.
+
+to demonstrate this please apply the taint on worker1 and worker2
+
+check that the master node do not have any taint
+
+$kubectl describe  node k8master |greo -i taint
+
+the output of the taints show show node
+
+apply the taint in the worker1 and worker2
+
+$kubectl taint node k8worker1 team=uat:NoSchedule
+
+$kubectl taint node k8worker2 team=uat:NoSchedule
+
+check the taint applied using the following command
+
+$kubectl describe node k8worker1 |grep -i taint
+
+$kubectl describe node k8worker2 |grep -i taint
+
+Create the deployment and run to check that the pod will not run on the node where taint is applied
+
+cat > vote-deploy.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  revisionHistoryLimit: 4
+  replicas: 4
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: vote
+    matchExpressions:
+      - {key: version, operator: In, values: [v1, v2, v3]}
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: python
+        role: vote
+        version: v3
+    spec:
+      containers:
+        - name: app
+          image: schoolofdevops/vote:v3
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+ctrl+ d to save
+
+$kubectl apply -f vote-deploy.yaml
+
+check the pod status and the node on which the pod is placed
+
+$kubectl get pod -o wide
+
+you will see that all the pods are running in the k8master node. the reason the node do not have any taint and scheduler places all the pod on this node as taint is applied on k8worker1 and k8worker2
+
+$kubectl delete deployment vote
+
+Running the pod on the node having the taint
+
+to run the pod on the tainted node tolerations are used.
+
+create the deployment file
+
+cat > vote-deploy.yaml
+      
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  revisionHistoryLimit: 4
+  replicas: 4
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: vote
+    matchExpressions:
+      - {key: version, operator: In, values: [v1, v2, v3]}
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: python
+        role: vote
+        version: v3
+    spec:
+      containers:
+        - name: app
+          image: schoolofdevops/vote:v3
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "uat"
+        effect: "NoSchedule"
+      
+ctrl+d to save
+
+apply the yaml file
+
+$kubectl apply -f vote-deploy.yaml
+
+check the pod placement using the command
+
+$kubectl get pod -o wide
+
+you will see the pod runs on all the node k8master k8worker1 k8worker2
+
+with tolerations the scheduler is now able to run the pod on the tainted node plus the other nodes.
+
+The scheduler node list now contains the tainted node  and the other nodes .
+
+$ kubectl delete deployment vote
+
+Running the pod only on the tainted nodes.
+
+The requirement is that all the pods of the uat team should run on k8worker1 and k8worker2 and no other pod is also allowed to run on this node.
+this can be achieved by node taints and nodeSelector
+
+label the node
+$kubectl label node k8worker1 team=uat
+
+$kubectl label node k8worker2 team=uat
+
+create the deployment file
+
+cat> vote-deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  revisionHistoryLimit: 4
+  replicas: 4
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: vote
+    matchExpressions:
+      - {key: version, operator: In, values: [v1, v2, v3]}
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: python
+        role: vote
+        version: v3
+    spec:
+      containers:
+        - name: app
+          image: schoolofdevops/vote:v3
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "uat"
+        effect: "NoSchedule"
+      nodeSelector:
+        team: uat
+
+ctrd to save
+
+$kubectl apply -f vote-deploy.yaml
+
+you will see that the pod now only runs on the node k8worker1 and k8worker2 and no other pods of other team are allowed to run on this nodes.
+
+$kubectl get pod -o wide
+
+delete the deployment
+
+$kubectl delete deployment vote
+
+
