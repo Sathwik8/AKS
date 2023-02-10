@@ -1,0 +1,568 @@
+Service type ith NodePort
+
+kubectl deletes rs web 
+
+kubectl delete rs vote -n ecom
+kubectl get svc votesvc -n ecom
+
+create the replicaset
+
+Use the following vote-rs.yaml file
+cat > vote-rs.yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+ name: vote
+spec:
+ replicas: 8
+ minReadySeconds: 20
+ selector:
+   matchLabels:
+     role: vote
+   matchExpressions:
+     - {key: version, operator: In, values: [v1, v2, v3]}
+ template:
+   metadata:
+     name: vote
+     labels:
+       app: python
+       role: vote
+       version: v2
+   spec:
+     containers:
+       - name: app
+         image: schoolofdevops/vote:v2
+         ports:
+           - containerPort: 80
+             protocol: TCP
+
+create the replicaset using the following command
+
+kubectl apply -f vote-rs.yaml
+
+Create the vote-svc.yaml file
+
+cat > vote-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+ name: vote
+spec:
+ ports:
+ - port: 80
+   protocol: TCP
+   targetPort: 80
+ selector:
+   role: vote
+ type: NodePort
+
+kubectl apply -f vote-svc.yaml
+
+check the service using the following command
+
+kubectl get svc
+
+the service vote type is NodePort and the the first port in the port column (80) is the container port and the second is the nodeport (31208) For you the nodeport may be different
+
+TO get the Public ip of the node got to the nodepool ad select the apppol node. Add the rule in NSG to allow the trafiic
+
+
+Check the service details and the endpoint details
+
+kubectl describe svc vote
+
+
+open the browser and put the publicip of your workernode and nodeport in the below syntax
+
+http://publicip:nodeport
+
+Delete all replicaset, pod and service
+
+$ kubectl delete rs vote
+
+
+$ kubectl delete svc votesvc
+
+
+Service Tyoe Load Balancer
+
+delete the svc vote
+
+$ kubectl delete svc vote
+
+Create the vote-svc file
+
+$ cat >vote-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: vote
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    role: vote
+  type: LoadBalancer 
+
+ctrld-d tosave
+
+Apply the service file
+
+$ kubectl apply -f vote-svc.yaml
+
+Check the service abd the load balancer ip
+
+$ kubectl get svc
+
+you will get the load balancer ip in the external ip column
+
+use the ip in the browser and you will able to see the application
+
+Got to Azure portal and search load balancer and you will get the loadbakcner with name kubernetes 
+click on that and verify the frontend ip configuration
+--------------------------------------------------------------------------------------
+
+Deploymant Lab
+
+Create the Deployment
+
+$ cat > vote-deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: vote
+spec:
+ strategy:
+   type: RollingUpdate
+   rollingUpdate:
+     maxSurge: 2
+     maxUnavailable: 0
+ revisionHistoryLimit: 4
+ paused: false
+ replicas: 8
+ minReadySeconds: 20
+ selector:
+   matchLabels:
+     role: vote
+   matchExpressions:
+     - {key: version, operator: In, values: [v1, v2, v3]}
+ template:
+   metadata:
+     name: vote
+     labels:
+       app: python
+       role: vote
+       version: v2
+   spec:
+     containers:
+       - name: app
+         image: schoolofdevops/vote:v2
+         ports:
+           - containerPort: 80
+             protocol: TCP
+press ctrl+d
+
+Create the deployment using the following command
+$ kubectl apply -f vote-deploy.yaml
+
+Create the service for the depoyment
+cat > vote-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+ name: vote
+ labels:
+   role: vote
+spec:
+ selector:
+   role: vote
+ ports:
+   - port: 80
+     targetPort: 80
+     nodePort: 30000
+ type: LoadBalancer
+presse ctrl+d
+
+Create the service
+
+$ kubectl apply -f vote-svc.yaml
+
+to list the deployment,rs and pod
+
+$ kubectl get deployment,rs,pod
+
+$ kubectl get deployment
+$ kubectl get rs
+$ kubectl get pod
+
+To list te service
+$ kubectl get svc
+
+verify the node port and access the application using the http://loadbalancerip in your browser
+
+Scaling the deployment
+Modify the vote-deploy.yaml file and change the replica count to 4 . you can als use command line to scale the replicas
+apply the yaml file
+$ vi vote-deploy.yaml
+change the replica count to 4
+$ kubectl apply -f vote-deploy.yaml
+verify using
+
+$ kubectl get deployment
+$ kubectl get pod
+
+Performing rolling update
+
+modify the vote-depoy.yaml file and change the pod label to v3 and image to v4
+labels:
+       app: python
+       role: vote
+       version: v3
+   spec:
+     containers:
+       - name: app
+         image: schoolofdevops/vote:v4
+         ports:
+           - containerPort: 80
+             protocol: TCP
+
+Apply the yaml file
+
+$ kubectl apply -f vote-deploy.yaml
+
+To verify that the upgrade started
+
+$ kubectl rollout status deployment vote
+
+browse the application in the browser and refresh the page 2 or 2 times you will see old verion and new version of the application
+
+$ kubectl get pod
+
+$ kubectl describe pod podname
+
+verify the image name in the describe output and pod label
+
+To rollback to the previous version if not satisfied with the update
+
+$ kubectl rollout history deployment vote
+
+it will diplay different revision of the update history
+
+To check the changes in each version please use the command
+$ kubectl rollout history deployment vote --revision=1
+
+To rollback to the previous version (version=1)
+
+$ kubectl rollout undo deployment vote --to-revision=1
+
+to verify the update
+
+$ kubectl rollout status deployment vote
+
+to check the rollout history
+
+$ kubectl rollout history deployment vote
+
+to delete the deployment
+
+$ kubectl delete deployment vote
+
+or
+$ kubectl delete -f vote-deploy.yaml
+
+
+
+
+
+
+-------------------------------------------------------
+Pod Scheduling
+
+kubectl get node
+kubectl get node --show-labels
+cat >demopod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+ labels:
+   app: tomee
+   env: dev
+   version: v1
+ name: demopod
+spec:
+ containers:
+ - image: nginx
+   name: demopod
+ nodeName: k8worker2
+
+create the pod using
+kubectl apply -f demopod.yaml
+
+kubectl get pod -o wide
+you will see that the pod is running on specificr node because we have use nodeName and specify the name of the node on which the pod will run. schduler is not coming in scope when you specify nodename.
+The game
+
+
+$ kubectl delete -f demopod.yaml
+kubectl get node
+
+Define the label to both the node
+kubectl label node k8worker1 cpu=gpu
+kubectl label node k8worker2 disk=ssd
+
+kubectl get node --show-labels
+cat > demopod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+ labels:
+   app: tomee
+   env: dev
+   version: v1
+ name: demopod
+spec:
+ containers:
+ - image: nginx
+   name: demopod
+ nodeSelector:
+   cpu: gpu
+kubectl apply -f demopod.yaml
+kubectl get pod -o wide
+now the pod will run on k8worker1 as we are using the nodeSelctor and the label. the pod will run on the node which matches the node label
+
+Login to the worker node and stop the kubelet service
+$ sudo systemctl stop kubelet
+
+Login to the master node and exeecute
+
+kubectl get node
+you will see after some time the worker node is  NotReady
+Login to the worker node again and start the kubelet service
+$ sudo systemctl start kubelet
+login to the master and check the node status
+kubectl get node
+
+Node Maintenance
+kubectl get node
+
+
+the command will bring the node to maintainence and disable the scheduling
+kubectl drain k8worker1 --force --ignore-daemonsets
+kubectl get node -o wide
+kubectl get pod -o wide
+kubectl get node
+kubectl create deployment  testsched --image=nginx --replicas=4
+kubectl get pod -o wide
+kubectl get node
+
+Remove the node out of maintainence
+kubectl uncordon k8worker1
+kubectl get node
+kubectl create deployment  testsched2 --image=nginx --replicas=4
+kubectl get pod -o wide
+kubectl delete deployment testsched testsched2
+
+Taint and tolerations lab
+
+Taints is used when you want that scheduler will not able to schedule the pods on specific nodes.
+
+to demonstrate this please apply the taint on worker1 and worker2
+
+check that the master node do not have any taint
+
+$kubectl describe  node k8master |greo -i taint
+
+the output of the taints show show node
+
+apply the taint in the worker1 and worker2
+
+$kubectl taint node k8worker1 team=uat:NoSchedule
+
+$kubectl taint node k8worker2 team=uat:NoSchedule
+
+check the taint applied using the following command
+
+$kubectl describe node k8worker1 |grep -i taint
+
+$kubectl describe node k8worker2 |grep -i taint
+
+Create the deployment and run to check that the pod will not run on the node where taint is applied
+
+cat > vote-deploy.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  revisionHistoryLimit: 4
+  replicas: 4
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: vote
+    matchExpressions:
+      - {key: version, operator: In, values: [v1, v2, v3]}
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: python
+        role: vote
+        version: v3
+    spec:
+      containers:
+        - name: app
+          image: schoolofdevops/vote:v3
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+ctrl+ d to save
+
+$kubectl apply -f vote-deploy.yaml
+
+check the pod status and the node on which the pod is placed
+
+$kubectl get pod -o wide
+
+you will see that all the pods are running in the k8master node. the reason the node do not have any taint and scheduler places all the pod on this node as taint is applied on k8worker1 and k8worker2
+
+$kubectl delete deployment vote
+
+Running the pod on the node having the taint
+
+to run the pod on the tainted node tolerations are used.
+
+create the deployment file
+
+cat > vote-deploy.yaml
+      
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  revisionHistoryLimit: 4
+  replicas: 4
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: vote
+    matchExpressions:
+      - {key: version, operator: In, values: [v1, v2, v3]}
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: python
+        role: vote
+        version: v3
+    spec:
+      containers:
+        - name: app
+          image: schoolofdevops/vote:v3
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "uat"
+        effect: "NoSchedule"
+      
+ctrl+d to save
+
+apply the yaml file
+
+$kubectl apply -f vote-deploy.yaml
+
+check the pod placement using the command
+
+$kubectl get pod -o wide
+
+you will see the pod runs on all the node k8master k8worker1 k8worker2
+
+with tolerations the scheduler is now able to run the pod on the tainted node plus the other nodes.
+
+The scheduler node list now contains the tainted node  and the other nodes .
+
+$ kubectl delete deployment vote
+
+Running the pod only on the tainted nodes.
+
+The requirement is that all the pods of the uat team should run on k8worker1 and k8worker2 and no other pod is also allowed to run on this node.
+this can be achieved by node taints and nodeSelector
+
+label the node
+$kubectl label node k8worker1 team=uat
+
+$kubectl label node k8worker2 team=uat
+
+create the deployment file
+
+cat> vote-deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  revisionHistoryLimit: 4
+  replicas: 4
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: vote
+    matchExpressions:
+      - {key: version, operator: In, values: [v1, v2, v3]}
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: python
+        role: vote
+        version: v3
+    spec:
+      containers:
+        - name: app
+          image: schoolofdevops/vote:v3
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "uat"
+        effect: "NoSchedule"
+      nodeSelector:
+        team: uat
+
+ctrd to save
+
+$kubectl apply -f vote-deploy.yaml
+
+you will see that the pod now only runs on the node k8worker1 and k8worker2 and no other pods of other team are allowed to run on this nodes.
+
+$kubectl get pod -o wide
+
+delete the deployment
+
+$kubectl delete deployment vote
