@@ -1,18 +1,16 @@
-POD Labels Lab
-Pod labels
+# POD Labels Lab
+# ----------------------------------------------------------
 
-Pod labels are key value pair that we assigned to pod and provide meningful information to pod . POD labels are mandatory and ned to assigned to pod by the user
+# Pod labels are key value pair that we assigned to pod and provide meningful information to pod . POD labels are mandatory and ned to assigned to pod by the user
 
-To cretae the pod with user defined label
+# To cretae the pod with user defined label
 $ kubectl run newpod --image=nginx -l app=nginx
 
-to list the pod labels
-
+# to list the pod labels
 $ kubectl get pod --show-labels
 
-create the pod using yaml file with labels
-
-modify the demopod.yaml
+# create the pod using yaml file with labels
+# modify the demopod.yaml
 
 cat >demopod.yaml
 apiVersion: v1
@@ -29,46 +27,39 @@ spec:
     name: demopod
 press ctrl-d
 
-cat demopod.yaml
+# to view the data
+$ cat demopod.yaml
 
 $ kubectl apply -f demopod.yaml
 
-check the pod labels using the command
+# check the pod labels using the command
 $ kubectl get pod --show-labels
 
-create a new pod and defined the label in command line 
-
+# create a new pod and defined the label in command line 
 kubectl run appserver --image=tomee -l app=tomee —port=8080
 
-to add more labels to pod using the command line
-
+# to add more labels to pod using the command line
 kubectl label pod appserver env=dev version=1
 
-To list the pod matching specific labels
-
+# To list the pod matching specific labels
 $  kubectl get pod -l app=tomee
 
-to overwrite  existing pod label
-
+# to overwrite  existing pod label
 $ kubectl label pod appserver app=web --overwrite
 
-to add new pod label
-
+# to add new pod label
 kubectl label pod demopod role=webserver
 
-to delete the pod label
+# to delete the pod label
+$ kubectl label pod demopod role-
 
- kubectl label pod demopod role-
-
-to list all the pod labels
-
+# to list all the pod labels
 $ kubectl get pod --show-labels
 
-to delete all the pods
-
+# to delete all the pods
 $ kubectl delete pod --all
----------------------------------------
 
+# ----------------------------------------------------------
 
 apiVersion: v1
 clusters:
@@ -91,3 +82,4 @@ users:
     client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKSndJQkFBS0NBZ0VBcDRkeDdNNHhDSjh5RGI0WG9EbGV4OWo0MU9KSlFIVmgycVNQM2lnaVMyZUZ3ZnE2CkdlTWtWNHgzSnUzbFFxenlCR3BXMUJ5ekQ1RDIwYlo5UUFHN0RKYmxQdU13NFVtNjF2OXFGTFVvMG1Ud3YxY2sKcUkyc3N6VkVQRW00cVJkWFJ3WnFHR29DQzB0QmtlMDJ6dFJKSHJCT3N4RVJXQjJlRzRFNmVKdXQwTkpPMWs2YQpBNmVLQlM1MnZNMkxuZDQ2cmFLdnZZa0hXMUR0OFlvSDFOZTNVeVdxZyswZjJXM2F1Uk1EMnJrb0VNU3hOOTFFCjlGaTd1T1VjQjZ5RGoxSlZqZ0xZTk92ZUhjM3dCUkxsL0RWL29vR1dxa1p2Q1pXbCtXb1ZrVG1SQzVlMUlQdE0KTXBHS3BEWTFvaTdueUJyRTZzbE9UNnRCU29xdEcrS29tOHFIa1RTMkdhVDNyQjBDZ2lmNXBrZzEyalYyWWJUWgplR3dDOVRJVG5UdTZrMzlBR2hRbnpJOXdqeDJDTGE0VzZqZERpa29kU3FiSmxBS0JwT1VZTzY1WTFtdmk2SVhlCi82a3lHMjlQaS9WczJ2ZlRCN21sdTlKbGRBWUpzMy96bWk5OFNDR2Q0aFd4c3l0dEFrYkRZSm1WRGd2b2xzRnIKbXVGQXBRMmM5cW5uUFFPcUxZU2tBOGJkeXNtNUpRS2dBVElta0xtNHBkNEE4NytFUzhsQlE5VHVnSFBPYUhkYQpVcTFiZjYyOTFmT0JNN3FETE9jT2QwN3hSdktUckJ4bFZrWjE4WUR3WWIwOW1lWjNxbGJBc3U5d2tFZzk5UlVaCmtGenRmdGlscXREUWJScnBGdVR3OS9IY0FITFNhbHhZRGFveXNKTmFEUFBVNDBabFo2azJaUkJYNWlNQ0F3RUEKQVFLQ0FnQnpaRXJuVm5yVnVubUtsN1hFU2Qvci9ab2ZZQ0llZ1B1KzB2eTVnNkZqbU5HNzlBdzlpb1BjdmNiUQpqS29PUy91RGFRK1htSkVKbHNzN1ZkeGR1eE53cjNzRjN3MHJFRkxlaGgwMldEWGUvV0lLR1djSnBsUWZPQUJoCkdsSlVQZHlDOG5zZmg5MFNsR3A4cmd6RFY5dHBoUDBnUUJCWFJrZENJTGY2blJpVExsalpLbGpSVFpRMnozTS8KeHNCMUk3MzlIWUs1Sldwb3pveW1nM0d6ZkVZc3dsUDUvTm1rTlJPanlPSXR4TDFCRjRvTnRaNHFRL2hCZWFYZAo3MGpLN21ZNW8rSHlTY2k3ZEw3dmI3MzBBNUYvaUkwVGllSXZrdUU0czRaWmVuSmFyc3MzQllETmtBd1Q0YmI5Cm1CdFViSVBZU0lKbFE4dDhJWnJ0Q3lraDdkV0Q0K21NbHpwSXlhNVAxWVVNR1FHdWc4Y3NzdHVvemZFbHBTT3oKVXAyWVlVOUJUL0t6eWpVbVFhalk2Y3o2N3ByM3NPQ2pOSHZ4TldWclZTc0JGL25QSVBvTjA5N0lUUXJ0a29TawpMVnBIbFh1azZqVWptdVNhZVVodk5YRHdQRWpBbmxJUzRQQ1lISm5QS3NmK05UYzN0YXJUYmdpa2w0WktmMGhrCldjMlJzaStjcGJqNStrNnJpWTh6cFBHNG9tQWlYSm4rNUZRREVLRjNpYlpMa3Z3d0ZDcnZxdGl3T3JnVXd6RnQKY3dQWThsdUZCQnpTWE53TFhoVEc0YTdXRXNjUlg2dnlIM2tSVEI5aXN0Rno3UjR0ejh4M3RocmZ1VytJRi9OSgpFT05GanpseVpMakdRcEpibjRPR3dGMmE3ZUs1QzQ0V3Y3U1E5d3pGVm1YdjZIQTc0UUtDQVFFQXdNRlVIaWx0CjFoTnJraTY0TTF5b0xDb1BWcjR4NkxqK0xxc21DVmRyNTYveTZPQUF0enJIWDVwd3pXcFNqK2VUNnoyV3hxRlcKT1U0MkRBUUc5S2twQk5IeW1RT0phRE9ZL2VZQVV2b05CR2xWRmMvY0N3WmNOeTkvVkMzb2g0T3k0b05TaEFjcgp2dmo2NlJjUkkxWFp0VEJPYVZ0YTZXK2loU1JPbmsreEs4L1R2V2ErZnhQWUtkZVpLOVdkcVZwQ0JuS1BNbHNMClpubDRNcDlkaG4zci9TUVRIVVI2UmsxaWIvOEE2ZnRjNTFLYUgyTFBnRWVoZTltUmw2eW5hNXQrb2JkcHdSajgKa0NVbjFkZ1htbzFSclFYRmNpUFhTNmM5Nmtzallhc0tRcUNkaFNMT2lDdjNrRGp4YTU1UkJmbWJTaTBFTFUyUAp1d2JvUWQ2T1h6azRzUUtDQVFFQTNuODVNNkRISHhPbG9tZnJpOUFQM3ZLdWE4aURWbjQzRzA5VUhvRTlicHU4ClRwZ3NyZkFhTEREZWl4dmp2dGw5cmNCblBFUkZEMkNnc0NkN0NUYUFmL2tIbGVTVER2aytSZ3k0NkRxZS9zeVkKSGZPTDV4c1prUlBPNkg2eTlaQTN5cTFyUXk1S24xb2JmcnFvakYrSk1rUytqRVY1dDFISXJFN0ljQWNvSDZSUwpxTHlNbkRNbDNKN0YrUXc0dDRTZ1B5OFc0T1VQR0UydXNPdEQ2WTFKYW1TYUxZWjhFdzJCTXVQTWJuMWZWVlAwCkR3cmdaclA5T3JQNUsyNWwvcHB1cU9pTnFvUjhkZXh2c213Y01YV24vNkFFQmJ4d25mOENrWmJIWjBYSjBYZGsKdVlobXhFZS9WTnJOWGUwMHowcWJkL2V5Ri9iUG91ZmcydkVRbStBQkV3S0NBUUFEUG4yNjhEbVFBODJvclM2ZQpkcTNCNklkUGoyM3BtOHR6WDZBSlFqWm50TmRpd2ZwaEd4VWw3OFI4UUpEWktTMmRKUEUzc0pseDUzWVRaN0h5ClJqS1JpVE1MRGpzdXpNZURabTZVOXU1bko1cXQva3lXeHVtZ2FDVTlkblJXYTRvRU0rK2NsejVPUFlTRGpjYlYKRUduVW1kYUlBV2liU3l5eUR2VmZ4cm1Wb2k3UEhqNlFodlg1Wms2R3BWYTg5ZTdzaXRzTUh1b25ORjRvZy9RZwpBbGlKYnlUL05oclV1aEt4RGRxbkZYcnZ6YjBZVUNKcjUwaTVlK1R1WjVKOXhpVXdkWlRMRWkrV0FYb1ZLRWpsCmFnRjQ1d0wyczlHNHpUekdoN00xdnBveW10OXIwVFVtcDQ3SUY1MUFrVzZOcWpESjQ4NFJNUi85SnRXYjNqSUoKT2o1UkFvSUJBRjJwS0tjM0V4dGQ1ZWZMM3pmbnlnYU1HaWg5Syt5SkRTR043MWM0Q0dnN1hyV25FWWZXL3UyRApWT3N5UGxqa3JTY3JTMG52WXpMcDlqcXhJL1hvMzRiL2lkWHJkb3hqRjNmZGV5a25KQzhXYVNLU2wxNGQ1bEZRCkNWV05vRUFIQ2JWajh6ZEFrV0VyU1UrN3U1Lzd4NEZGdHdETmJrTmhSaHhpdmJXTERiVGtNM2VjaDRScGM1Sy8KczQ3M09oam0xNTVCY0Z3VGtKc21lRmM1Y2trcWxMRVkwRjVCc3BGQ3FoU0dHRlNhcWpyOU1FdjB4Q24zc3EyMwpmVGh2TExoVXdpaVFYTEpmT3hWWkJsd1JibnpUam5qcEgwaGEzdjFqaisxQmo0ZEZ0WU5id3libTZIdlB5QmNzClZDOHAzNFV6WHViTmVrYmtPdHZVeUs3aHM2QXFWOGtDZ2dFQVBhb2NDd013TytodkxxV0E3NXJXY29mdG1QVmUKSmQrVU1YYmNMZGcrTjNHa3IydUlaZW5DbThkOHREUUdsTkR6R095NTBNWG9KdGIrbHlwS25JTGNrekJBNzd2SwphOTlUMXhPTjArZGxLblVmazlOS3lvLy8rV1BGZGlvZjdTaVUrQitDWk9YZ1M1RGNqdlhPQ2pHMlozZHlCbGRDCkdZMXpWcVZtc0xWY0hEUDBOQUxyQTBuTWRhdU4zWGVOWTkvbElNWXMrdE94Sy85MXhXU240M3ZoUTM2blZwNU8KV2ZHVkx1Sm9tUWpoU3QxWUJweFFLVmFUOUkwRWtvMnBZaGlOcnAvRDdteDZzeFJiTDY5U3Q5aXpwdGx1UmFWWApYZWZNNXlCdTF4aXpmaGREVng0N1NBWmxwMjlSbVF6Y3pqWVRNQ01VMW1YSE4zNm5scGtjQzhxZFVBPT0KLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K
     token: 753b1abd8db346f2820b8b96de3754af18709aca53d163ab8e51cfb57392f7b2e4e1e55ecef14e1bd10c6e09f17ba74e91be20245eb4a84626f360c3fa86ac63
 
+# ----------------------------------------------------------

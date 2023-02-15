@@ -1,13 +1,10 @@
----------------
-Service Lab
-----------------
+# Service Lab
+# ----------------------------------------------------------
 
-Delete your existing replicaset
+# Delete your existing replicaset
+$ kubectl delete rs vote 
 
-kubectl delete rs vote 
-
-Service discovery
-
+# Service discovery
 cat > webrs.yaml
 
 apiVersion: apps/v1
@@ -37,7 +34,9 @@ spec:
               protocol: TCP
 ctrld d to save
 
+# To view the data
 cat > vote-rs.yaml
+
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -66,51 +65,45 @@ spec:
               protocol: TCP
 ctrld-d to save
 
-create the replicasets
-kubectl apply -f webrs.yaml
+# create the replicasets
+$ kubectl apply -f webrs.yaml
 
+# check the status of the replicaset and the pod
+$ kubectl get rs
 
+$ kubectl get pod
 
-check the status of the replicaset and the pod
-kubectl get rs
+# create the service for vote replicaset ( web wants to communicate with vote)
+$ kubectl expose rs vote --name votesvc --selector role=vote --port=80
 
-kubectl get pod
+#check the service status
+$ kubectl get svc
 
-create the service for vote replicaset ( web wants to communicate with vote)
+# check the pod ip address and the service endpoints
+$ kubectl get pod -o wide
 
-kubectl expose rs vote --name votesvc --selector role=vote --port=80
+$ kubectl describe svc votesvc
 
-check the service status
-kubectl get svc
+# check the endpoint entry in the output the endpoint entry matches with the pod ip of vote.  check the selector field in the describe output with the help of selector the service is selecting the endpoints (pod to which forward the request)
+# service is a internal load balancer, web pod uses the svc name votesvc to connect to vote pod, the service name votesvc will be resolved to the service ip and the service will forward the request to the endpoints.
 
-check the pod ip address and the service endpoints
+# login to the web pod. Identify the pod name of web using the 
+$ kubectl get pod
 
-kubectl get pod -o wide
+$ kubectl exec -it web-pod-name bash
 
-kubectl describe svc votesvc
+# inside the pod execute the command
+$ curl  -v http://votesvc:80
 
-check the endpoint entry in the output the endpoint entry matches with the pod ip of vote.  check the selector field in the describe output with the help of selector the service is selecting the endpoints (pod to which forward the request)
-service is a internal load balancer, web pod uses the svc name votesvc to connect to vote pod, the service name votesvc will be resolved to the service ip and the service will forward the request to the endpoints.
+# you will able to see the web page.
+# to futher understand how the service name resolves 
 
-login to the web pod. Identify the pod name of web using the 
-kubectl get pod
-
-kubectl exec -it web-pod-name bash
-
-inside the pod execute the command
-$curl  -v http://votesvc:80
-
-you will able to see the web page.
-
-to futher understand how the service name resolves 
-
-install a package in the pod container
+# install a package in the pod container
 apt-get update
 apt-get install dnsutils -y
 
 nslookup votesvc
-
-you will see the fully qualified name of the service 
+#you will see the fully qualified name of the service 
 
 cat /etc/resolv.conf
 
