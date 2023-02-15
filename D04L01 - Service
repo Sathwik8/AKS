@@ -1,0 +1,146 @@
+# Service Lab
+# ----------------------------------------------------------
+
+# Delete your existing replicaset
+$ kubectl delete rs vote 
+
+# Service discovery
+cat > webrs.yaml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: web 
+spec:
+  replicas: 1
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: web 
+      app: nginx
+  template:
+    metadata:
+      name: web 
+      labels:
+        app: nginx 
+        role: web 
+        version: v3
+    spec:
+      containers:
+        - name: web 
+          image: nginx 
+          ports:
+            - containerPort: 80
+              protocol: TCP
+ctrld d to save
+
+# To view the data
+cat > vote-rs.yaml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: vote
+spec:
+  replicas: 1
+  minReadySeconds: 20
+  selector:
+    matchLabels:
+      role: vote
+    matchExpressions:
+      - {key: version, operator: In, values: [v1, v2, v3]}
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: python
+        role: vote
+        version: v3
+    spec:
+      containers:
+        - name: app
+          image: schoolofdevops/vote:v3
+          ports:
+            - containerPort: 80
+              protocol: TCP
+ctrld-d to save
+
+# create the replicasets
+$ kubectl apply -f webrs.yaml
+
+# check the status of the replicaset and the pod
+$ kubectl get rs
+
+$ kubectl get pod
+
+# create the service for vote replicaset ( web wants to communicate with vote)
+$ kubectl expose rs vote --name votesvc --selector role=vote --port=80
+
+#check the service status
+$ kubectl get svc
+
+# check the pod ip address and the service endpoints
+$ kubectl get pod -o wide
+
+$ kubectl describe svc votesvc
+
+# check the endpoint entry in the output the endpoint entry matches with the pod ip of vote.  check the selector field in the describe output with the help of selector the service is selecting the endpoints (pod to which forward the request)
+# service is a internal load balancer, web pod uses the svc name votesvc to connect to vote pod, the service name votesvc will be resolved to the service ip and the service will forward the request to the endpoints.
+
+# login to the web pod. Identify the pod name of web using the 
+$ kubectl get pod
+
+$ kubectl exec -it web-pod-name bash
+
+# inside the pod execute the command
+$ curl  -v http://votesvc:80
+
+# you will able to see the web page.
+# to futher understand how the service name resolves 
+
+# install a package in the pod container
+apt-get update
+apt-get install dnsutils -y
+
+nslookup votesvc
+# you will see the fully qualified name of the service 
+
+cat /etc/resolv.conf
+
+# you will find the ip address of the dns server
+# to find more about dns server 
+
+# type 
+exit 
+
+# come out of the container 
+
+$ kubectl get svc -n kube-system 
+# you will able to see a service with name kube-dns which has the ip address 10.96.0.10 which is the dns server of the pods. To dig further execute the command
+
+$ kubectl describe svc kube-dns -n kube-system
+# you will see the endpoints ip which is the actual pod ip to which the kube-dns forwards the request to reolve the svc name to ip
+
+# to find out the pod ip address which is using the kube-dns server use the following command
+$ kubectl get pod -o wide -n kube-system
+# you will able to see the coredns pod ip address whch is the endpoint of the kube-dns server
+
+# Increase the replica count from 1 to 4
+$ kubectl scale rs vote --replicas=4
+
+# check the pod
+$ kubectl get pod -o wide
+
+# check the service votesvc and you will find 4 endpoints in the service
+$ kubectl describe svc votesvc
+
+# login to the web pod. identify the name of the pod using the kubectl get pod command
+$ kubectl exec -it web-nbwl9 bash
+
+curl -v http://votesvc:80
+#repeat the command multiple times and you will see the service is load balancing the request to the pod replicas
+
+# exit from the pod using the command
+exit
+
+# ----------------------------------------------------------

@@ -1,13 +1,13 @@
-Service type ith NodePort
+# Service type ith NodePort
 
 kubectl deletes rs web 
 
 kubectl delete rs vote -n ecom
 kubectl get svc votesvc -n ecom
 
-create the replicaset
+# create the replicaset
 
-Use the following vote-rs.yaml file
+# Use the following vote-rs.yaml file
 cat > vote-rs.yaml
 apiVersion: apps/v1
 kind: ReplicaSet
@@ -36,12 +36,10 @@ spec:
            - containerPort: 80
              protocol: TCP
 
-create the replicaset using the following command
-
+# create the replicaset using the following command
 kubectl apply -f vote-rs.yaml
 
-Create the vote-svc.yaml file
-
+# Create the vote-svc.yaml file
 cat > vote-svc.yaml
 apiVersion: v1
 kind: Service
@@ -58,40 +56,30 @@ spec:
 
 kubectl apply -f vote-svc.yaml
 
-check the service using the following command
+# check the service using the following command
 
 kubectl get svc
 
-the service vote type is NodePort and the the first port in the port column (80) is the container port and the second is the nodeport (31208) For you the nodeport may be different
+# the service vote type is NodePort and the the first port in the port column (80) is the container port and the second is the nodeport (31208) For you the nodeport may be different
 
-TO get the Public ip of the node got to the nodepool ad select the apppol node. Add the rule in NSG to allow the trafiic
+# TO get the Public ip of the node got to the nodepool ad select the apppol node. Add the rule in NSG to allow the trafiic
 
-
-Check the service details and the endpoint details
-
+# Check the service details and the endpoint details
 kubectl describe svc vote
 
-
-open the browser and put the publicip of your workernode and nodeport in the below syntax
-
+# open the browser and put the publicip of your workernode and nodeport in the below syntax
 http://publicip:nodeport
 
-Delete all replicaset, pod and service
-
+# Delete all replicaset, pod and service
 $ kubectl delete rs vote
-
-
 $ kubectl delete svc votesvc
 
+# Service Tyoe Load Balancer
 
-Service Tyoe Load Balancer
-
-delete the svc vote
-
+# delete the svc vote
 $ kubectl delete svc vote
 
-Create the vote-svc file
-
+# Create the vote-svc file
 $ cat >vote-svc.yaml
 apiVersion: v1
 kind: Service
@@ -109,21 +97,18 @@ spec:
 
 ctrld-d tosave
 
-Apply the service file
-
+# Apply the service file
 $ kubectl apply -f vote-svc.yaml
 
-Check the service abd the load balancer ip
-
+# Check the service abd the load balancer ip
 $ kubectl get svc
 
-you will get the load balancer ip in the external ip column
+# you will get the load balancer ip in the external ip column
+# use the ip in the browser and you will able to see the application
 
-use the ip in the browser and you will able to see the application
-
-Got to Azure portal and search load balancer and you will get the loadbakcner with name kubernetes 
-click on that and verify the frontend ip configuration
---------------------------------------------------------------------------------------
+# Got to Azure portal and search load balancer and you will get the loadbakcner with name kubernetes 
+# click on that and verify the frontend ip configuration
+# --------------------------------------------------------------------------------------
 
 Deploymant Lab
 
